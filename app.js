@@ -148,6 +148,14 @@ function renderAnalysis() {
     <h1>OB の分析</h1>
     <p class="sub">${s.rounds}ラウンド・${s.shots}ショット（パット除く）。件数が${GolfAnalysis.MIN_N}回未満の項目は薄く表示しています。</p>
     <div class="stat"><div><b>${s.ob}</b>OB</div><div><b>${s.onePen}</b>ワンペナ</div><div><b>${s.penStrokes}</b>罰打の合計</div></div>
+    <h2>ラウンドごとの推移</h2>
+    ${rounds.length ? rounds.map(r => {
+      const shots = r.holes.flatMap(h => h.shots);
+      const pen = shots.reduce((t, x) => t + GolfAnalysis.penaltyOf(x), 0);
+      const total = r.holes.reduce((t, h) => t + (h.score || 0), 0);
+      return `<div class="bar"><span>${esc(r.date)}</span><span class="sub">${total ? `スコア ${total}・` : ""}OB ${shots.filter(x => x.result === "OB").length}回</span><span class="v">罰打 ${pen}</span></div>`;
+    }).join("") : `<p class="sub">まだありません。</p>`}
+    <p class="notice">罰打がなければ、スコアはその分だけ少なくなります。まず「1ラウンドの罰打」を減らすことを目標にしましょう。</p>
     <div class="card"><b>OB が出やすい状況</b>
       ${s.top.length ? `<ol style="margin:8px 0 0;padding-left:1.4em">${s.top.map(t => `<li><b>${esc(t.dim)}：${esc(t.key)}</b> … ${pct(t.rate)}（${t.hit}/${t.n}）${t.lift >= 1.5 ? `<br><span class="sub">全体の ${t.lift.toFixed(1)} 倍</span>` : ""}</li>`).join("")}</ol>`
         : `<p class="sub">OB の記録が増えると、ここに出ます。</p>`}
